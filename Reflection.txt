@@ -1,0 +1,20 @@
+Path Planning Project Reflection
+
+There are three main parts to the code:
+
+1) Predictive Planning: 
+
+This utilizes the sensor fusion data to predict where the other vehicles will be in future steps. Additionally, it provides the data needed to determine if there is a vehicle in front of our car.
+    
+
+2) Path Planning: (Lines 99-158 in main.cpp and 157-241 in helpers.h)
+
+If we find a car in front of us we have to determine how close it is. If it is too close we have to determine what we should do. The system I implemented works as follows: when we are too close to the car in front of us, we first check if a lane change is possible. This is done by checking the locations of all vehicles around our vehicle. When we are in the far left lane we only have to check the right lane, when we are in the far right lane we only have to check the left lane. In the event that we are in the center lane, both lanes have to be checked. If only one of the lanes is determined to be open we choose that lane for the lane change. If both lanes are open a further decision has to be made about which lane to choose. I implemented a system that checks which lane has the most open forward distance. This is done by looping over all vehicles that we have sensor data for and checking what the closest vehicle in each lane is, specifically this is determined by code lines 175-215 in helpers.h. This left_distance and right_distance is updated for each vehicle on the respective side that is the closest to our vehicle. The closest left and right distances are yielded from the loop. If both are still above the threshold for allowing a lane change safely then the lane with the greater distance is chosen. In the event both distances are equal the left lane is chosen. If a lane change is not possible then the brakes are applied, with the force determined based on proximity to the vehicle in front. If we are outside of 15 meters from the car in front a slower deceleration speed is used, when we are inside of 15 meters the deceleration speed is doubled. Additionally, if a car changes lanes into our lane and is too close the brakes are immediately applied to avoid a collision.
+
+
+3) Trajectory Planning: (Lines 160-250 in main.cpp)
+
+This part of the code applies the operation that is determined in part 2. This code utilizes spline to ensure smooth transitions and make sure we stay under the 10 m/s^3 jerk requirement. The 10 m/s^2 acceleration requirement is met by the acceleration rate applied in line 157 of the code.
+
+
+There are a few short-comings of the system design, most notably if we change lanes and the car in front of us breaks suddenly we will change lanes again. This could mean that the car changes lanes multiple times in a short time period.
